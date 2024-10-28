@@ -1,24 +1,24 @@
-from flask import Flask, render_template, request, jsonify, send_from_directory, send_file, redirect, url_for
+from flask import Flask, render_template, request, send_from_directory
 import requests
 import re
 import os
-from PIL import Image
-import json
-import numpy as np
 
+
+# --------------------------------------------------------------------
+# VARIABLES
+# --------------------------------------------------------------------
 
 # Path to the images directory
-IMAGES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static/images')
+ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+IMAGES_DIR = os.path.join(ROOT_DIR, 'static/images')
 SOURCE_DIR = os.path.join(IMAGES_DIR, 'source')
 MASK_DIR = os.path.join(IMAGES_DIR, 'masque')
 
 # Path to the generated directory in the backend
-PREDICT_API_URL = 'http://127.0.0.1:8001/predict'
+PREDICT_API_URL = 'https://projet8backend-dygac2e7f9h6c4ar.westeurope-01.azurewebsites.net'
+BACKEND_GENERATED_DIR = os.path.join(PREDICT_API_URL, 'generated')
 
-BACKEND_GENERATED_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'backend', 'generated')
-
-
-# Extract image IDs from filenames in the leftimg directory
+# Extract image IDs and names from filenames in the leftimg directory
 def extract_image_ids():
     image_ids = []
     image_names = []
@@ -32,6 +32,10 @@ def extract_image_ids():
 
 image_ids, image_names = extract_image_ids()
 
+
+# --------------------------------------------------------------------
+# IMAGES AND BASE ROUTE
+# --------------------------------------------------------------------
 
 app = Flask(__name__)
 
@@ -57,6 +61,9 @@ def index():
     return render_template('index.html', image_ids=image_ids, image_names=image_names)
 
 
+# --------------------------------------------------------------------
+# PREDICT AND DISPLAY ROUTES
+# --------------------------------------------------------------------
 
 # Prediction route
 @app.route('/api/predict', methods=['POST'])
@@ -76,12 +83,8 @@ def predict():
     # Extract the image ID
     image_id = re.search(r'_(\d{6})_leftImg8bit', real_image_filename).group(1)
 
-    response = requests.post(PREDICT_API_URL, json={'image_url': image_url, "predicted_mask_filename": predicted_mask_filename})
+    requests.post(PREDICT_API_URL, json={'image_name': real_image_filename, "predicted_mask_filename": predicted_mask_filename})
 
-    response_data = response.json()
-    predicted_mask_path = response_data['predicted_mask_path']
-    print('--------------------------------8000-1-------------------------------')
-    print(predicted_mask_path)
     return render_template('redirect_post.html', image_id=image_id, real_image_filename=real_image_filename, real_mask_filename=real_mask_filename, predicted_mask_filename=predicted_mask_filename)
 
 
@@ -89,7 +92,6 @@ def predict():
 # Display route 
 @app.route('/display', methods=['POST'])
 def display():
-    print('--------------------------------8000-3-------------------------------')
     image_id = request.form['image_id']
     real_image_filename = request.form['real_image_filename']
     real_mask_filename = request.form['real_mask_filename']
