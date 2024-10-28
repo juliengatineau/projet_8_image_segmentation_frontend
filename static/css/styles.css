@@ -1,0 +1,148 @@
+body, ul, img, li, h1, p {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: whitesmoke;
+    text-align: center;
+}
+
+img {
+    max-width: 100%;
+}
+
+ul {
+    list-style-type: none;
+}
+
+bold {
+    background-color: lightgrey;
+}
+
+
+h1 {
+    margin: 5rem 0;
+    font-size: 2.5rem;
+}
+
+h1 p {
+    display: inline-block;
+    padding-bottom: .5rem;
+    border-bottom: solid .25rem #000;
+}
+
+.clear {
+    clear: both;
+}
+
+
+/*///////////////////////////////////////////////////////////////////*/
+
+.wrapper {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+ul.image{
+    width: 70%;
+    height: 35vw;
+    max-height: 420px;
+    position: relative;
+    margin: 5rem 15% 0;
+}
+
+.image img {
+    position:absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+ul.num_id {
+    margin: 2rem auto 1.5rem;
+}
+
+.num_id li {
+    display: inline-block;
+    padding: .3rem;
+    background-color: lightgrey;
+    color: dimgrey;
+    border-radius: .4em;
+}
+
+.num_id li:not(:last-child) {
+    margin-right: 1rem;
+}
+
+.num_id .active{
+    background-color: darkgrey;
+    color: black;
+}
+
+.image li.highlight img {
+    opacity: 1;
+}
+
+
+h2 + p, h2 + p + p {
+    font-size: .8rem;
+}
+
+
+
+/*///////////////////////////////////////////////////////////////////*/
+
+.display img {
+    display: inline-block;
+}
+
+.display h2 {
+    margin: 0 0 1rem;
+    font-size: 1rem;
+}
+
+.real {
+    margin-top: 5rem;
+}
+
+.real img {
+    width: 40%;
+}
+
+.seg, .pred {
+    width: calc(40% - 2vw);
+    float: left;
+    margin-top: 2rem;
+}
+
+.seg img, .pred img {
+    width: 100%;
+}
+
+.seg {
+    margin: 2rem 4vw 0 10%;
+}
+
+
+
+h2.return {
+    margin-top: 6rem;
+}
+
+.display a {
+    padding: .6rem;
+    text-decoration: none;
+    font-size: 1.2rem;
+    background-color: darkgrey;
+    color: black;
+    border-radius: .4em;
+}
+
+.display a:hover {
+    background-color: silver;
+    color: rgb(35, 35, 35);
+}

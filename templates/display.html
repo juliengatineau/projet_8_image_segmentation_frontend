@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Display Image and Masks</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body class="display">
+<div class="wrapper">
+
+    <h1><p>Segmentaton image {{ image_id }}</p></h1>
+
+    <section class="real">
+        <h2>Real Image</h2>
+        <img src="{{ url_for('serve_frontend_image', filename=real_image) }}" alt="Real Image">
+    </section>
+
+    <section class="seg">
+        <h2>Real segmentation</h2>
+        <img src="{{ url_for('serve_frontend_mask', filename=real_mask) }}" alt="Real Mask">
+    </section>
+
+    <section class="pred">
+        <h2>Predicted segmentation</h2>
+        <img src="{{ url_for('serve_backend_image', filename=predicted_mask) }}" alt="Predicted Mask">
+    </section>
+    <div class="clear"></div>
+    
+    <h2 class="return"><a href="{{ url_for('index') }}">Make an other prediction</a></h2>
+</div>
+</body>
+</html>
