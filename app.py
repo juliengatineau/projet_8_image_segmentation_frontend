@@ -88,6 +88,7 @@ def predict():
 
     data = response.json()
     img_base64 = data['predicted_mask']
+    print('--- img_base64 :', img_base64)
     img_bytes = base64.b64decode(img_base64)
     img_io = io.BytesIO(img_bytes)
     image = Image.open(img_io)
