@@ -18,7 +18,7 @@ MASK_DIR = os.path.join(IMAGES_DIR, 'masque')
 PRED_DIR = os.path.join(IMAGES_DIR, 'pred')
 
 # Path to the generated directory in the backend
-PREDICT_API_URL = 'https://projet8backend-dygac2e7f9h6c4ar.westeurope-01.azurewebsites.net'
+PREDICT_API_URL = 'https://projet8backend-dygac2e7f9h6c4ar.westeurope-01.azurewebsites.net/predict'
 
 # Extract image IDs and names from filenames in the leftimg directory
 def extract_image_ids():
