@@ -2,8 +2,7 @@ from flask import Flask, render_template, request, send_from_directory
 import requests
 import re
 import os
-import io
-import base64
+from io import BytesIO
 from PIL import Image
 
 # --------------------------------------------------------------------
@@ -84,19 +83,7 @@ def predict():
     # Extract the image ID
     image_id = re.search(r'_(\d{6})_leftImg8bit', real_image_filename).group(1)
 
-
-    response = requests.post(PREDICT_API_URL, json={'image_name': real_image_filename, "predicted_mask_filename": predicted_mask_filename})
-
-    data = response.json()
-    img_base64 = data['predicted_mask']
-    print('--- img_base64 :', img_base64)
-    img_bytes = base64.b64decode(img_base64)
-    img_io = io.BytesIO(img_bytes)
-    image = Image.open(img_io)
-
-    # Save the predicted mask
-    predicted_mask_path = os.path.join(PRED_DIR, predicted_mask_filename)
-    image.save(predicted_mask_path)
+    requests.post(PREDICT_API_URL, json={'image_name': real_image_filename, "predicted_mask_filename": predicted_mask_filename})
 
     return render_template('redirect_post.html', image_id=image_id, real_image_filename=real_image_filename, real_mask_filename=real_mask_filename, predicted_mask_filename=predicted_mask_filename)
 
@@ -109,7 +96,21 @@ def display():
     real_image_filename = request.form['real_image_filename']
     real_mask_filename = request.form['real_mask_filename']
     predicted_mask_filename = request.form['predicted_mask_filename']
- 
+    
+    # Creeate the url to the predicted mask
+    predicted_mask_url = os.path.join(PREDICT_API_URL, 'pred', predicted_mask_filename)
+    # Download the image from the URL
+    response = requests.get(predicted_mask_url)
+    image = Image.open(BytesIO(response.content))
+    print('--- image OK')
+
+    # Define the output path for the mask
+    output_path = os.path.join(PRED_DIR, predicted_mask_filename)
+    
+    # Save the image
+    image.save(output_path)
+    print(f'--- Mask saved at {output_path}')
+
     return render_template('display.html', image_id=image_id, real_image=real_image_filename, real_mask=real_mask_filename, predicted_mask=predicted_mask_filename)
 
 
