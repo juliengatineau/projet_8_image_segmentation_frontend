@@ -70,6 +70,7 @@ def index():
 # Prediction route
 @app.route('/api/predict', methods=['POST'])
 def predict():
+    print('--- predict ---')
     # Get the image URL from the form
     image_url = request.form['image_url']
     # Extract the filename
