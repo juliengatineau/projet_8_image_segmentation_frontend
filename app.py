@@ -3,10 +3,15 @@ import requests
 import re
 import os
 from PIL import Image
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.DEBUG)
 
 # --------------------------------------------------------------------
 # VARIABLES
 # --------------------------------------------------------------------
+
 
 # Path to the images directory
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -74,7 +79,7 @@ def index():
 # Prediction route
 @app.route('/api/predict', methods=['POST'])
 def predict():
-    print('--- predict ---')
+    logging.info('----------------------------predict-frontend---------------------------')
     # Get the image URL from the form
     image_url = request.form['image_url']
     # Extract the filename
@@ -90,21 +95,22 @@ def predict():
 
     # Resize and save the image
     image = Image.open(f"{SOURCE_DIR}/{real_image_filename}")
-    print('--- image opened')
+    logging.info('--- image opened')
     image = image.resize((MODEL_INPUT_WIDTH, MODEL_INPUT_HEIGHT))
-    print('--- image resized')
+    logging.info('--- image resized')
     image.save(f"{RESIZE_DIR}/{real_image_filename}")
-    print('--- image saved')
+    logging.info('--- image saved')
 
     # send the image to the API
     with open(f"{RESIZE_DIR}/{real_image_filename}", "rb") as img_file:
         files = {'image': img_file}
         response = requests.post(PREDICT_API_URL, files=files, data={'predicted_mask_filename': predicted_mask_filename})
 
-    print('--- response received')
+    logging.info('--- response received')
     save_path = os.path.join(PRED_DIR, predicted_mask_filename)
     with open(save_path, 'wb') as f:
         f.write(response.content)
+    logging.info('--- image saved')
 
     return render_template('redirect_post.html', image_id=image_id, real_image_filename=real_image_filename, real_mask_filename=real_mask_filename, predicted_mask_filename=predicted_mask_filename)
 
@@ -113,7 +119,7 @@ def predict():
 # Display route 
 @app.route('/display', methods=['POST'])
 def display():
-    print('----------------------------display---------------------------')
+    logging.info('----------------------------display---------------------------')
     image_id = request.form['image_id']
     real_image_filename = request.form['real_image_filename']
     real_mask_filename = request.form['real_mask_filename']
