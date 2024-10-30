@@ -2,7 +2,6 @@ from flask import Flask, render_template, request, send_from_directory
 import requests
 import re
 import os
-from io import BytesIO
 from PIL import Image
 
 # --------------------------------------------------------------------
@@ -15,9 +14,15 @@ IMAGES_DIR = os.path.join(ROOT_DIR, 'static/images')
 SOURCE_DIR = os.path.join(IMAGES_DIR, 'source')
 MASK_DIR = os.path.join(IMAGES_DIR, 'masque')
 PRED_DIR = os.path.join(IMAGES_DIR, 'pred')
+RESIZE_DIR = os.path.join(IMAGES_DIR, 'resize')
 
 # Path to the generated directory in the backend
 PREDICT_API_URL = 'https://projet8backend-dygac2e7f9h6c4ar.westeurope-01.azurewebsites.net/predict'
+
+# Input dimensions expected by your Keras model
+MODEL_INPUT_WIDTH = 256
+MODEL_INPUT_HEIGHT = 128
+
 
 # Extract image IDs and names from filenames in the leftimg directory
 def extract_image_ids():
@@ -83,7 +88,23 @@ def predict():
     # Extract the image ID
     image_id = re.search(r'_(\d{6})_leftImg8bit', real_image_filename).group(1)
 
-    requests.post(PREDICT_API_URL, json={'image_name': real_image_filename, "predicted_mask_filename": predicted_mask_filename})
+    # Resize and save the image
+    image = Image.open(f"{SOURCE_DIR}/{real_image_filename}")
+    print('--- image opened')
+    image = image.resize((MODEL_INPUT_WIDTH, MODEL_INPUT_HEIGHT))
+    print('--- image resized')
+    image.save(f"{RESIZE_DIR}/{real_image_filename}")
+    print('--- image saved')
+
+    # send the image to the API
+    with open(f"{RESIZE_DIR}/{real_image_filename}", "rb") as img_file:
+        files = {'image': img_file}
+        response = requests.post(PREDICT_API_URL, files=files, data={'predicted_mask_filename': predicted_mask_filename})
+
+    print('--- response received')
+    save_path = os.path.join(PRED_DIR, predicted_mask_filename)
+    with open(save_path, 'wb') as f:
+        f.write(response.content)
 
     return render_template('redirect_post.html', image_id=image_id, real_image_filename=real_image_filename, real_mask_filename=real_mask_filename, predicted_mask_filename=predicted_mask_filename)
 
@@ -92,28 +113,13 @@ def predict():
 # Display route 
 @app.route('/display', methods=['POST'])
 def display():
+    print('----------------------------display---------------------------')
     image_id = request.form['image_id']
     real_image_filename = request.form['real_image_filename']
     real_mask_filename = request.form['real_mask_filename']
     predicted_mask_filename = request.form['predicted_mask_filename']
-    
-    # Creeate the url to the predicted mask
-    predicted_mask_url = os.path.join(PREDICT_API_URL, 'pred', predicted_mask_filename)
-    # Download the image from the URL
-    response = requests.get(predicted_mask_url)
-    image = Image.open(BytesIO(response.content))
-    print('--- image OK')
-
-    # Define the output path for the mask
-    output_path = os.path.join(PRED_DIR, predicted_mask_filename)
-    
-    # Save the image
-    image.save(output_path)
-    print(f'--- Mask saved at {output_path}')
 
     return render_template('display.html', image_id=image_id, real_image=real_image_filename, real_mask=real_mask_filename, predicted_mask=predicted_mask_filename)
 
-
-    
 if __name__ == '__main__':
     app.run(debug=True, port=8000)
