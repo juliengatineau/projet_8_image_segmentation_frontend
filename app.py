@@ -3,6 +3,7 @@ import requests
 import re
 import os
 from PIL import Image
+from io import BytesIO
 import logging
 
 # Configure logging
@@ -107,9 +108,14 @@ def predict():
         response = requests.post(PREDICT_API_URL, files=files, data={'predicted_mask_filename': predicted_mask_filename})
 
     logging.info('--- response received')
+    img_io = BytesIO(response.content)
+    image = Image.open(img_io)
+    logging.info('--- image opened')
+
+    resized_image = image.resize((2048,1024), Image.Resampling.LANCZOS)
+
     save_path = os.path.join(PRED_DIR, predicted_mask_filename)
-    with open(save_path, 'wb') as f:
-        f.write(response.content)
+    resized_image.save(save_path)
     logging.info('--- image saved')
 
     return render_template('redirect_post.html', image_id=image_id, real_image_filename=real_image_filename, real_mask_filename=real_mask_filename, predicted_mask_filename=predicted_mask_filename)
