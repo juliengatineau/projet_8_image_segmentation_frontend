@@ -2,4 +2,4 @@
 
 Frontend interface of the API
 
-Allow to select from a selection of images and display results
+Allow to choose from a selection of images and display results
